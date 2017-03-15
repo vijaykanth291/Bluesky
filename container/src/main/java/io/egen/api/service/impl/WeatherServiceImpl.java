@@ -3,8 +3,10 @@
  */
 package io.egen.api.service.impl;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,16 @@ public class WeatherServiceImpl implements WeatherService {
 	}
 
 	@Override
+	public Set<String> findAllCities() {
+		Set<String> cities = new HashSet<>();
+		List<Weather> weatherList = findAll();
+		for(Weather weather: weatherList) {
+			cities.add(weather.getCity());
+		}
+		return cities;
+	}
+	
+	@Override
 	public Weather findByCity(String city) {
 		Optional<Weather> weather = repository.findByCity(city);
 		if (weather.isPresent()) {
@@ -47,4 +59,23 @@ public class WeatherServiceImpl implements WeatherService {
 		}
 	}
 
+	@Override
+	public int findLatestTemperatureByCity(String city) {
+		Weather weather = findByCity(city);
+		if(weather != null) {
+			return weather.getTemperature();
+		} else {
+			return -200;
+		}
+	}
+	
+	@Override
+	public int findLatestHumidityByCity(String city) {
+		Weather weather = findByCity(city);
+		if(weather != null) {
+			return weather.getHumidity();
+		} else {
+			return -1;
+		}
+	}
 }

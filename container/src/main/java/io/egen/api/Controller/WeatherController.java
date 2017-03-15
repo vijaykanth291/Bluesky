@@ -1,8 +1,6 @@
 
 package io.egen.api.Controller;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -68,12 +66,7 @@ public class WeatherController {
 			@ApiResponse(code = 404, message = "Not Found"),
 			@ApiResponse(code = 500, message = "Internal Server Error") })
 	public Set<String> findAll(){
-		Set<String> cities = new HashSet<>();
-		List<Weather> weatherList = service.findAll();
-		for(Weather weather: weatherList) {
-			cities.add(weather.getCity());
-		}
-		return  cities;
+		return service.findAllCities();
 	}
 
 	/**
@@ -106,12 +99,7 @@ public class WeatherController {
 		if(!isValidCity(city)) {
 			throw new Exception("Please enter valid city");
 		}
-		Weather weather = service.findByCity(city);
-		if(weather != null) {
-			return weather.getTemperature();
-		} else {
-			return -200;
-		}
+		return service.findLatestTemperatureByCity(city);
 	}
 
 	/**
@@ -128,51 +116,8 @@ public class WeatherController {
 		if(!isValidCity(city)) {
 			throw new Exception("Please enter valid city");
 		}
-		Weather weather = service.findByCity(city);
-		if(weather != null) {
-			return weather.getHumidity();
-		} else {
-			return -1;
-		}
+		return service.findLatestHumidityByCity(city);
 	}
-	
-	
-	/**
-	 * 
-	 * Returns Hourly Averaged Weather for a given City
-	 */
-	/*@RequestMapping(method=RequestMethod.GET, value = "/{city}/hourlyavg")
-	@ApiOperation(value = "Gets the hourly averaged weather for a city", notes = "Returns the hourly averaged weather for a city")
-	@ApiResponses(value = { 
-			@ApiResponse(code = 200, message = "Success"),
-			@ApiResponse(code = 404, message = "Not Found"),
-			@ApiResponse(code = 500, message = "Internal Server Error") })
-	public Weather findHourlyAvgWeatherByCity(@PathVariable("city") String city) throws Exception {
-		if(!isValidCity(city)) {
-			throw new Exception("Please enter valid city");
-		}
-		return service.findHourlyAvgByCity(city);
-	}*/
-	
-	
-	
-	/**
-	 * 
-	 * Returns Daily Averaged Weather for a given City
-	 */
-	/*@RequestMapping(method=RequestMethod.GET, value = "/{city}/dailyavg")
-	@ApiOperation(value = "Gets the daily averaged weather for a city", notes = "Returns the daily averaged weather for a city")
-	@ApiResponses(value = { 
-			@ApiResponse(code = 200, message = "Success"),
-			@ApiResponse(code = 404, message = "Not Found"),
-			@ApiResponse(code = 500, message = "Internal Server Error") })
-	public Object findDailyAvgWeatherByCity(@PathVariable("city") String city) throws Exception {
-		if(!isValidCity(city)) {
-			throw new Exception("Please enter valid city");
-		}
-		return service.findDailyAvgByCity(city);
-		
-	}*/
 
 	private boolean isValidCity(String city) {
 		// checks if the city is not empty and do not contain Special Characters

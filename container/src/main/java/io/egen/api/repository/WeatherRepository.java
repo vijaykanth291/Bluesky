@@ -17,6 +17,5 @@ public interface WeatherRepository extends Repository<Weather, String> {
 	public List<Weather> findAll();
 
 	public Optional<Weather> findByCity(String city);
-
 	
 }
