@@ -14,7 +14,10 @@ import javax.persistence.OneToOne;
 @NamedQueries({
 	@NamedQuery(name="Weather.findAll", query="SELECT w FROM Weather w ORDER BY w.city"),
 	@NamedQuery(name="Weather.findByCity", query="SELECT w FROM Weather w where w.city=:city ORDER BY w.city DESC"),
-	@NamedQuery(name="Weather.findById", query="SELECT w FROM Weather w where w.id=:id")
+	@NamedQuery(name="Weather.findHourlyAvgByCity", query="SELECT Avg(w.humidity), Avg(w.pressure), Avg(w.temperature), \n" + 
+			"Avg(wind.degree), Avg(wind.speed) From Weather w inner join Wind wind on w.wind.id = wind.id where w.city =:city group by hour(w.timestamp) , w.city"),
+	@NamedQuery(name="Weather.findDailyAvgByCity", query="SELECT Avg(w.humidity), Avg(w.pressure), Avg(w.temperature), \n" + 
+			"Avg(wind.degree), Avg(wind.speed) From Weather w inner join Wind wind on w.wind.id = wind.id where w.city =:city group by date(w.timestamp) , w.city")
 })
 public class Weather {
 
@@ -28,6 +31,7 @@ public class Weather {
 	private int pressure;
 	private int temperature;
 	private String timestamp;
+	
 	
 	@OneToOne(cascade = CascadeType.ALL)
 	private Wind wind;
@@ -81,6 +85,7 @@ public class Weather {
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
+	
 	public Wind getWind() {
 		return wind;
 	}

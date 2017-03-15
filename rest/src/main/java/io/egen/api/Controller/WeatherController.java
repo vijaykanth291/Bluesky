@@ -1,8 +1,6 @@
 
 package io.egen.api.Controller;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -12,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -53,7 +52,7 @@ public class WeatherController {
 			@ApiResponse(code = 404, message = "Not Found"),
 			@ApiResponse(code = 500, message = "Internal Server Error") })
 	public Weather create(@RequestBody Weather weather){
-		System.out.println("Posting: "+weather.getCity());
+		System.out.println("Posting: "+ weather.getCity());
 		return service.create(weather);
 	}
 
@@ -68,12 +67,7 @@ public class WeatherController {
 			@ApiResponse(code = 404, message = "Not Found"),
 			@ApiResponse(code = 500, message = "Internal Server Error") })
 	public Set<String> findAll(){
-		Set<String> cities = new HashSet<>();
-		List<Weather> weatherList = service.findAll();
-		for(Weather weather: weatherList) {
-			cities.add(weather.getCity());
-		}
-		return  cities;
+		return service.findAllCities();
 	}
 
 	/**
@@ -106,12 +100,7 @@ public class WeatherController {
 		if(!isValidCity(city)) {
 			throw new Exception("Please enter valid city");
 		}
-		Weather weather = service.findByCity(city);
-		if(weather != null) {
-			return weather.getTemperature();
-		} else {
-			return -200;
-		}
+		return service.findLatestTemperatureByCity(city);
 	}
 
 	/**
@@ -128,15 +117,60 @@ public class WeatherController {
 		if(!isValidCity(city)) {
 			throw new Exception("Please enter valid city");
 		}
-		Weather weather = service.findByCity(city);
-		if(weather != null) {
-			return weather.getHumidity();
-		} else {
-			return -1;
+		return service.findLatestHumidityByCity(city);
+	}
+	
+	
+	/**
+	 * 
+	 * Returns Hourly Averaged Weather for a given City
+	 */
+	@RequestMapping(method=RequestMethod.GET, value = "/{city}/hourlyavg")
+	@ApiOperation(value = "Gets the hourly averaged weather for a city", 
+	notes = "Returns the hourly averaged weather for a city (field takes following values: humidity, temperature, pressure, windDegree, windSpeed)")
+	@ApiResponses(value = { 
+			@ApiResponse(code = 200, message = "Success"),
+			@ApiResponse(code = 404, message = "Not Found"),
+			@ApiResponse(code = 500, message = "Internal Server Error") })
+	public double findHourlyAvgWeatherByCity(@PathVariable("city") String city, @RequestParam String field) throws Exception {
+		if(!isValidCity(city)) {
+			throw new Exception("Please enter valid city");
 		}
+		
+		if(StringUtils.isEmpty(field)) {
+			throw new Exception("Please enter valid field");
+		}
+		
+		return service.findHourlyAvgByCity(city, field);
+	}
+	
+	
+	/**
+	 * 
+	 * Returns Daily Averaged Weather for a given City
+	 */
+	@RequestMapping(method=RequestMethod.GET, value = "/{city}/dailyavg")
+	@ApiOperation(value = "Gets the daily averaged weather for a city", 
+	notes = "Returns the daily averaged weather for a city (field takes following values: humidity, temperature, pressure, windDegree, windSpeed)")
+	@ApiResponses(value = { 
+			@ApiResponse(code = 200, message = "Success"),
+			@ApiResponse(code = 404, message = "Not Found"),
+			@ApiResponse(code = 500, message = "Internal Server Error") })
+	public Object findDailyAvgWeatherByCity(@PathVariable("city") String city, @RequestParam String field) throws Exception {
+		if(!isValidCity(city)) {
+			throw new Exception("Please enter valid city");
+		}
+		
+		if(StringUtils.isEmpty(field)) {
+			throw new Exception("Please enter valid field");
+		}
+		
+		return service.findDailyAvgByCity(city, field);
+		
 	}
 
 	private boolean isValidCity(String city) {
+		// checks if the city is not empty and do not contain Special Characters
 		return StringUtils.isNotEmpty(city) && StringUtils.isAlphaSpace(city);
 	}
 }

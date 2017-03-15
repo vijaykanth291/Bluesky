@@ -17,5 +17,9 @@ public interface WeatherRepository {
 	public Optional<Weather> findByCity(String city);
 
 	public Optional<Weather> findById(String id);
+	
+	public Double findHourlyAvgByCity(String city, int field);
+	
+	public Double findDailyAvgByCity(String city, int field);
 
 }

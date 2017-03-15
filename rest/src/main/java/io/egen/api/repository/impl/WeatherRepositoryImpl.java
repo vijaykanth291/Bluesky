@@ -8,7 +8,9 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
 
 import org.springframework.stereotype.Repository;
 
@@ -37,18 +39,11 @@ public class WeatherRepositoryImpl implements WeatherRepository {
 	}
 
 	@Override
-	public Optional<Weather> findById(String id) {
-		TypedQuery<Weather> query = em.createNamedQuery("Weather.findById", Weather.class);
-		query.setParameter("id", id);
-		List<Weather> weathers = query.getResultList();
-		if (!weathers.isEmpty()) {
-			return Optional.of(weathers.get(0));
-		} else {
-			return Optional.empty();
-		}	
+	public Optional<Weather> findById (String id) {
+		return Optional.ofNullable(em.find(Weather.class, id));
 	}
 
-
+	@Override
 	public Optional<Weather> findByCity(String city) {
 		TypedQuery<Weather> query = em.createNamedQuery("Weather.findByCity", Weather.class);
 		query.setParameter("city", city);
@@ -59,5 +54,36 @@ public class WeatherRepositoryImpl implements WeatherRepository {
 			return Optional.empty();
 		}
 	}
-
+	
+	@Override
+	public Double findHourlyAvgByCity(String city, int field) {
+		Query query = em.createNamedQuery("Weather.findHourlyAvgByCity");
+		query.setParameter("city", city);
+		List<Object[]> weathers = query.getResultList();
+		if (!weathers.isEmpty()) {
+			double temp = -1d;
+			for(Object[] weather: weathers) {
+				temp = (double) weather[field];
+			}
+			return temp;
+		} else {
+			return -1d;
+		}
+	}
+	
+	@Override
+	public Double findDailyAvgByCity(String city, int field) {
+		Query query = em.createNamedQuery("Weather.findDailyAvgByCity");
+		query.setParameter("city", city);
+		List<Object[]> weathers = query.getResultList();
+		if (!weathers.isEmpty()) {
+			double temp = -1d;
+			for(Object[] weather: weathers) {
+				temp = (double) weather[field];
+			}
+			return temp;
+		} else {
+			return -1d;
+		}
+	}
 }
